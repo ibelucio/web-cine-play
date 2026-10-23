@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Cineplay</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/icon.png}">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="flex min-h-screen flex-col bg-[#f2f4ef] text-[#171a18] antialiased">
+    <header class="border-b border-white/10 bg-[#171a18] text-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 sm:px-8">
+            <a th:href="@{/}" class="group inline-flex shrink-0 items-center gap-3 text-xl font-black tracking-tight">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-lime-500 text-2xl font-black text-[#171a18] transition group-hover:rotate-[-5deg]">C</span>
+                <span>Cine<span class="text-lime-500">Play</span></span>
+            </a>
+            <form th:action="@{/admin/logout}" method="post">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                <button type="submit"
+                    class="rounded-xl border border-white/20 px-4 py-2 text-sm font-bold transition hover:bg-white hover:text-[#171a18]">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="mx-auto max-w-7xl px-4 py-8 sm:px-8">
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#171a18]/15 pb-4">
+                <h1 class="text-2xl font-black tracking-tight sm:text-3xl">Catálogo de películas</h1>
+                <button type="button" id="btn-agregar-pelicula"
+                    class="rounded-xl border border-[#171a18]/20 bg-lime-500 px-4 py-2 text-sm font-bold shadow-sm transition hover:bg-lime-600 hover:text-white">
+                    + Agregar película
+                </button>
+            </div>
+
+            <p th:if="${mensaje}" th:text="${mensaje}" role="status"
+                class="mb-5 rounded-xl bg-lime-100 px-4 py-3 text-sm font-semibold text-[#171a18]"></p>
+
+            <form th:action="@{/admin/peliculas}" method="get" class="mb-6 flex flex-wrap gap-3">
+                <input type="search" name="busqueda" aria-label="Buscar película" th:value="${busqueda}" placeholder="Buscar película..."
+                    class="min-w-56 flex-1 rounded-xl border border-[#171a18]/20 bg-white px-4 py-2.5 text-sm outline-none focus:border-lime-500">
+                <select name="genero" aria-label="Filtrar por género"
+                    class="rounded-xl border border-[#171a18]/20 bg-white px-4 py-2.5 text-sm outline-none focus:border-lime-500">
+                    <option value="">Todos los géneros</option>
+                    <option th:each="genero : ${generos}" th:value="${genero}" th:text="${genero}"
+                        th:selected="${genero == generoSeleccionado}"></option>
+                </select>
+                <button type="submit"
+                    class="rounded-xl border border-black/50 bg-[#171a18] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white hover:text-[#171a18]">Buscar</button>
+            </form>
+
+            <div th:if="${#lists.isEmpty(peliculas)}"
+                class="rounded-2xl border border-dashed border-[#171a18]/25 bg-white p-8 text-center text-sm text-[#5c625d]">
+                No hay películas para mostrar.
+            </div>
+            <div th:unless="${#lists.isEmpty(peliculas)}"
+                class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <article th:each="pelicula : ${peliculas}"
+                    class="overflow-hidden rounded-2xl border border-[#171a18]/10 bg-white shadow-sm">
+                    <div class="flex min-h-36 gap-4 p-4">
+                        <img th:src="${pelicula.imagenPortada != null} ? @{/api/peliculas/{id}/portada(id=${pelicula.id})} : @{/assets/iconpel.png}"
+                            th:alt="${'Portada de ' + pelicula.titulo}"
+                            class="h-36 w-24 shrink-0 rounded-xl bg-[#e7eae3] object-cover">
+                        <div class="min-w-0">
+                            <h2 class="break-words text-lg font-black" th:text="${pelicula.titulo}"></h2>
+                            <p class="mt-1 text-sm text-[#5c625d]">
+                                <span th:text="${pelicula.genero}"></span>
+                                <span th:if="${pelicula.anio != null}" th:text="${' · ' + pelicula.anio}"></span>
+                            </p>
+                            <p class="mt-3 break-all text-xs text-[#5c625d]" th:text="${@almacenPeliculas.obtenerNombreArchivo(pelicula.link)}"></p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 border-t border-[#171a18]/10 p-3">
+                        <a th:href="@{/admin/peliculas/{id}/editar(id=${pelicula.id},busqueda=${busqueda},genero=${generoSeleccionado},pagina=${pagina})} + '#formulario'"
+                            class="flex-1 rounded-lg bg-lime-500 px-3 py-2 text-center text-sm font-bold hover:bg-lime-600">Editar</a>
+                        <form th:action="@{/admin/peliculas/{id}/borrar(id=${pelicula.id})}" method="post" class="flex-1"
+                            onsubmit="return confirm('¿Seguro que quieres borrar esta película?');">
+                            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                            <button type="submit"
+                                class="w-full rounded-lg bg-red-100 px-3 py-2 text-sm font-bold text-red-700 hover:bg-red-200">Borrar</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+
+            <nav th:if="${totalPaginas > 1}" aria-label="Paginación"
+                class="mt-8 flex items-center justify-center gap-4">
+                <a th:if="${pagina > 1}"
+                    th:href="@{/admin/peliculas(busqueda=${busqueda},genero=${generoSeleccionado},pagina=${pagina - 1})}"
+                    class="rounded-xl border border-[#171a18]/20 bg-white px-5 py-2.5 text-sm font-bold hover:bg-[#171a18] hover:text-white">← Anterior</a>
+                <span class="text-sm font-black" th:text="${'Página ' + pagina + ' de ' + totalPaginas}"></span>
+                <a th:if="${pagina < totalPaginas}"
+                    th:href="@{/admin/peliculas(busqueda=${busqueda},genero=${generoSeleccionado},pagina=${pagina + 1})}"
+                    class="rounded-xl border border-[#171a18]/20 bg-white px-5 py-2.5 text-sm font-bold hover:bg-[#171a18] hover:text-white">Siguiente →</a>
+            </nav>
+
+            <section id="formulario" th:classappend="${!mostrarFormulario} ? ' hidden' : ''"
+                class="mt-10 rounded-2xl border border-[#171a18]/10 bg-white p-5 shadow-sm sm:p-7">
+                <h2 class="mb-5 text-xl font-black"
+                    th:text="${pelicula.id == null ? 'Agregar película' : 'Editar película'}">Agregar película</h2>
+                <form th:action="@{/admin/peliculas/guardar}" method="post" enctype="multipart/form-data"
+                    th:object="${pelicula}" class="grid gap-4 sm:grid-cols-2">
+                    <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                    <input type="hidden" th:field="*{id}">
+                    <input type="hidden" name="busqueda" th:value="${busqueda}">
+                    <input type="hidden" name="filtroGenero" th:value="${generoSeleccionado}">
+                    <input type="hidden" name="pagina" th:value="${pagina}">
+
+                    <label class="text-sm font-semibold">Título
+                        <input type="text" th:field="*{titulo}" required maxlength="255"
+                            class="mt-1 w-full rounded-xl border border-[#171a18]/20 px-3 py-2">
+                        <span th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}" class="mt-1 block text-xs text-red-700"></span>
+                    </label>
+                    <label class="text-sm font-semibold">Género
+                        <input type="text" th:field="*{genero}" required maxlength="100"
+                            class="mt-1 w-full rounded-xl border border-[#171a18]/20 px-3 py-2">
+                        <span th:if="${#fields.hasErrors('genero')}" th:errors="*{genero}" class="mt-1 block text-xs text-red-700"></span>
+                    </label>
+                    <label class="text-sm font-semibold">Año
+                        <input type="number" th:field="*{anio}" min="1888" max="2100"
+                            class="mt-1 w-full rounded-xl border border-[#171a18]/20 px-3 py-2">
+                        <span th:if="${#fields.hasErrors('anio')}" th:errors="*{anio}" class="mt-1 block text-xs text-red-700"></span>
+                    </label>
+                    <label class="text-sm font-semibold">Ruta de la película
+                        <input type="text" th:field="*{link}" required placeholder="mi-pelicula.mp4"
+                            class="mt-1 w-full rounded-xl border border-[#171a18]/20 px-3 py-2">
+                        <span class="mt-1 block text-xs font-normal text-[#5c625d]">Escribe solo el nombre del archivo que está en /srv/peliculas.</span>
+                        <span th:if="${#fields.hasErrors('link')}" th:errors="*{link}" class="mt-1 block text-xs text-red-700"></span>
+                    </label>
+                    <label class="text-sm font-semibold sm:col-span-2">Portada (opcional, máximo 5 MB)
+                        <input type="file" th:field="*{imagenSubida}" accept="image/*"
+                            class="mt-1 block w-full rounded-xl border border-[#171a18]/20 px-3 py-2 text-sm">
+                        <span th:if="${#fields.hasErrors('imagenSubida')}" th:errors="*{imagenSubida}" class="mt-1 block text-xs text-red-700"></span>
+                    </label>
+                    <div class="flex flex-wrap gap-3 sm:col-span-2">
+                        <button type="submit"
+                            class="rounded-xl bg-lime-500 px-5 py-2.5 text-sm font-bold hover:bg-lime-600">Guardar película</button>
+                        <a th:href="@{/admin/peliculas}"
+                            class="rounded-xl border border-[#171a18]/20 px-5 py-2.5 text-sm font-bold hover:bg-[#e7eae3]">Cancelar</a>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <footer class="border-t border-[#171a18]/10 bg-[#e7eae3]">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-5 text-xs text-[#5c625d] sm:px-8">
+            <span class="font-black text-[#171a18]">Cine<span class="text-[#008000]">Play</span></span>
+            <span>Las mejores películas están aquí.</span>
+        </div>
+    </footer>
+    <script>
+        document.getElementById("btn-agregar-pelicula").addEventListener("click", () => {
+            const formulario = document.getElementById("formulario");
+            if (formulario.classList.contains("hidden")) {
+                formulario.classList.remove("hidden");
+                formulario.scrollIntoView({ behavior: "smooth", block: "start" });
+            } else {
+                formulario.classList.add("hidden");
+            }
+        });
+    </script>
+</body>
+
+</html>

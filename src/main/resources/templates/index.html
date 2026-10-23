@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:attr="data-context-path=@{/}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cineplay</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/icon.png}">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script th:src="@{/js/ObtenerPeliculas.js}" defer></script>
+</head>
+
+<body class="flex min-h-screen flex-col bg-[#f2f4ef] text-[#171a18] antialiased">
+    <header class="border-b border-white/10 bg-[#171a18] text-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 sm:px-8">
+            <a th:href="@{/}" id="inicio"
+                class="group inline-flex shrink-0 items-center gap-3 text-xl font-black tracking-tight">
+                <span
+                    class="grid h-10 w-10 place-items-center rounded-xl bg-lime-500 text-2xl font-black text-[#171a18] transition group-hover:rotate-[-5deg]">C</span>
+                <span>Cine<span class="text-lime-500">Play</span></span>
+            </a>
+
+            <!-- BUSCADOR -->
+            <div class="relative w-full max-w-sm">
+                <input type="text" id="buscador" aria-label="Buscar película" placeholder="Buscar película..."
+                    class="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 pr-11 text-sm text-white placeholder-white/50 outline-none transition focus:border-lime-300 focus:ring-2 focus:ring-lime-300/20">
+
+                <button type="button" id="btn-buscador" aria-label="Buscar"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-lime-300">
+                    🔍
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+
+        <section class="mx-auto max-w-7xl px-4 pt-6 pb-12 sm:px-8 sm:pt-8 sm:pb-16">
+            <div class="mb-7 flex flex-wrap items-end justify-between gap-4 border-b border-[#171a18]/15 pb-4">
+                <div>
+                    <h2 class="text-2xl font-black tracking-tight sm:text-3xl"> Top Películas</h2>
+                </div>
+            </div>
+
+            <!-- Contenedor de las peliculas -->
+            <div id="contenedor" class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <!-- CONTROLES DE PAGINACIÓN -->
+            <div class="mt-10 flex items-center justify-center gap-4">
+                <button id="btn-anterior"
+                    class="rounded-xl border border-[#171a18]/20 bg-white px-5 py-2.5 text-sm font-bold shadow-sm transition hover:bg-[#171a18] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    disabled>
+                    ← Anterior
+                </button>
+
+                <span id="pagina-indicador" class="text-sm font-black text-[#171a18]">
+                    Página 1
+                </span>
+
+                <button id="btn-siguiente"
+                    class="rounded-xl border border-[#171a18]/20 bg-white px-5 py-2.5 text-sm font-bold shadow-sm transition hover:bg-[#171a18] hover:text-white disabled:cursor-not-allowed disabled:opacity-40">
+                    Siguiente →
+                </button>
+            </div>
+
+            <!-- Plantilla con enlace <a> -->
+            <template id="plantilla-pelicula">
+                <a class="pelicula-link card group relative block w-full aspect-[2/3] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/20 shadow-lg cursor-pointer"
+                    href="#">
+
+                    <!-- Imagen de la película -->
+                    <img class="pelicula-img absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        th:src="@{/assets/iconpel.png}" alt="" />
+
+                    <!-- Degradado -->
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none">
+                    </div>
+
+                    <!-- Oscurecimiento al pasar el ratón -->
+                    <div
+                        class="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/30 pointer-events-none">
+                    </div>
+
+                    <!-- Número / Posición -->
+                    <span
+                        class="pelicula-numero absolute top-1 left-3 sm:top-2 sm:left-4 text-5xl sm:text-6xl md:text-7xl font-black text-white drop-shadow select-none opacity-0 group-hover:opacity-75">
+                        1
+                    </span>
+
+                    <!-- Contenedor del Título y Género -->
+                    <div
+                        class="absolute inset-x-3 bottom-4 flex flex-col items-center text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
+                        <!-- Título -->
+                        <span
+                            class="pelicula-titulo line-clamp-2 text-sm sm:text-base font-black text-white drop-shadow"></span>
+
+                        <!-- Género (Debajo, más pequeño y gris) -->
+                        <span class="pelicula-genero text-xs text-gray-300 font-medium drop-shadow mt-0.5"></span>
+                    </div>
+                </a>
+            </template>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-[#171a18]/10 bg-[#e7eae3]">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-5 text-xs text-[#5c625d] sm:px-8">
+            <span class="font-black text-[#171a18]">Cine<span class="text-[#008000]">Play</span></span>
+            <span>Las mejores películas están aquí.</span>
+        </div>
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login ADM Cineplay</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/icon.png}">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="flex min-h-screen flex-col bg-[#f2f4ef] text-[#171a18] antialiased">
+    <header class="border-b border-white/10 bg-[#171a18] text-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 sm:px-8">
+            <a th:href="@{/}" id="inicio"
+                class="group inline-flex shrink-0 items-center gap-3 text-xl font-black tracking-tight">
+                <span
+                    class="grid h-10 w-10 place-items-center rounded-xl bg-lime-500 text-2xl font-black text-[#171a18] transition group-hover:rotate-[-5deg]">C</span>
+                <span>Cine<span class="text-lime-500">Play</span></span>
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+
+        <section class="mx-auto flex max-w-7xl flex-col justify-center px-4 pt-4 pb-8 sm:px-8">
+
+            <!-- Encabezado centrado -->
+            <div class="mb-8 border-b border-[#171a18]/15 pb-4 text-center">
+                <h2 class="text-2xl font-black tracking-tight text-[#171a18] sm:text-3xl">
+                    Introduzca las credenciales de administrador
+                </h2>
+            </div>
+
+            <!-- Contenedor Login Centrado -->
+            <div id="contenedor-login" class="flex justify-center px-3 pt-10">
+                <form th:action="@{/admin/login}" method="post"
+                    class="w-full max-w-sm rounded-2xl border border-[#171a18]/10 bg-white p-6 shadow-xl flex flex-col gap-8">
+                    <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                    <p th:if="${error}" th:text="${error}" role="alert"
+                        class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"></p>
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-[#171a18]">Nombre de usuario</label>
+                        <input type="text" id="username" name="username" required autocomplete="username"
+                            class="mt-1 block w-full rounded-xl border border-[#171a18]/20 bg-white px-3 py-2 text-sm text-[#171a18] outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-300/50">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-[#171a18]">Contraseña</label>
+                        <input type="password" id="password" name="password" required autocomplete="current-password"
+                            class="mt-1 block w-full rounded-xl border border-[#171a18]/20 bg-white px-3 py-2 text-sm text-[#171a18] outline-none transition focus:border-lime-500 focus:ring-2 focus:ring-lime-300/50">
+                    </div>
+                    <button type="submit"
+                        class="mt-2 inline-flex items-center justify-center rounded-xl bg-lime-300 py-2.5 px-4 text-sm font-bold text-[#171a18] transition hover:bg-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-300 focus:ring-offset-2">
+                        Iniciar sesión
+                    </button>
+                </form>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="border-t border-[#171a18]/10 bg-[#e7eae3]">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-5 text-xs text-[#5c625d] sm:px-8">
+            <span class="font-black text-[#171a18]">Cine<span class="text-[#008000]">Play</span></span>
+            <span>Las mejores películas están aquí.</span>
+        </div>
+    </footer>
+
+</body>
+
+</html>

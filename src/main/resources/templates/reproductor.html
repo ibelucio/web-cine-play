@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cineplay — Reproductor</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/icon.png}">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.23.8/video-js.css" rel="stylesheet" />
+
+    <style>
+        /* Personalizaciones ligeras sobre Video.js para alinearse al tema Cineplay */
+        .video-js {
+            width: 100%;
+            height: 100%;
+            font-family: inherit;
+        }
+
+        /* Botón de reproducción centrado y con estilo adaptado */
+        .video-js .vjs-big-play-button {
+            background-color: rgba(132, 204, 22, 0.85) !important; /* lime-500 con transparencia */
+            color: #171a18 !important;
+            border: none !important;
+            border-radius: 1rem !important;
+            width: 2.5em !important;
+            height: 2.5em !important;
+            line-height: 2.5em !important;
+            margin-top: -1.25em !important;
+            margin-left: -1.25em !important;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .video-js:hover .vjs-big-play-button {
+            background-color: #84cc16 !important; /* lime-500 sólido */
+            transform: scale(1.1);
+        }
+
+        /* Barra de progreso y controles */
+        .video-js .vjs-play-progress {
+            background-color: #84cc16 !important;
+        }
+        .video-js .vjs-volume-level {
+            background-color: #84cc16 !important;
+        }
+    </style>
+</head>
+
+<body class="flex min-h-screen flex-col bg-[#f2f4ef] text-[#171a18] antialiased">
+    
+    <!-- HEADER -->
+    <header class="border-b border-white/10 bg-[#171a18] text-white">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 sm:px-8">
+            <a th:href="@{/}" id="inicio"
+                class="group inline-flex shrink-0 items-center gap-3 text-xl font-black tracking-tight">
+                <span
+                    class="grid h-10 w-10 place-items-center rounded-xl bg-lime-500 text-2xl font-black text-[#171a18] transition group-hover:rotate-[-5deg]">C</span>
+                <span>Cine<span class="text-lime-500">Play</span></span>
+            </a>
+
+            <!-- BUSCADOR -->
+            <div class="relative w-full max-w-sm">
+                <input type="text" id="buscador" aria-label="Buscar película" placeholder="Buscar película..."
+                    class="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 pr-11 text-sm text-white placeholder-white/50 outline-none transition focus:border-lime-300 focus:ring-2 focus:ring-lime-300/20">
+
+                <button type="button" id="btn-buscador" aria-label="Buscar"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-lime-300">
+                    🔍
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1">
+
+        <section class="mx-auto flex max-w-5xl flex-col justify-center px-4 pt-4 pb-8 sm:px-8">
+
+            <!-- Encabezado centrado -->
+            <div class="mb-8 border-b border-[#171a18]/15 pb-4 text-center">
+                    <h2 class="text-2xl font-black tracking-tight text-[#171a18] sm:text-3xl">
+                     <span id="titulo-pelicula" class="text-black" th:text="${pelicula.titulo}">Nombre de la Película</span>
+                </h2>
+            </div>
+
+            <!-- Contenedor reproductor -->
+            <div id="contenedor-reproductor" class="mx-auto w-full max-w-4xl">
+                <div class="aspect-video w-full overflow-hidden rounded-2xl border border-[#171a18]/15 bg-black shadow-2xl">
+                    <video id="mi-reproductor" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'>
+                        <source th:src="${pelicula.link}" th:type="${tipoVideo}" />
+                        <p class="vjs-no-js">
+                            Para ver este vídeo, por favor activa JavaScript o usa un navegador que soporte vídeo en HTML5.
+                        </p>
+                    </video>
+                </div>
+                <div class="mt-4 text-center text-sm text-[#5c625d]">
+                    <span>Género: </span>
+                    <span id="genero-pelicula" th:text="${pelicula.genero}">Género de la Película</span>
+                    <span class="mx-2">|</span>
+                    <span>Año: </span>
+                    <span id="anio-pelicula" th:text="${pelicula.anio}">Año de la Película</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-[#171a18]/10 bg-[#e7eae3]">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-5 text-xs text-[#5c625d] sm:px-8">
+            <span class="font-black text-[#171a18]">Cine<span class="text-[#008000]">Play</span></span>
+            <span>Las mejores películas están aquí.</span>
+        </div>
+    </footer>
+
+    <!-- Video.js JS -->
+    <script src="https://vjs.zencdn.net/8.23.8/video.min.js"></script>
+    <script th:inline="javascript">
+        const contextPath = /*[[@{/}]]*/ "/";
+        const buscador = document.getElementById("buscador");
+        const buscarPeliculas = () => {
+            window.location.href = `${contextPath}?busqueda=${encodeURIComponent(buscador.value)}`;
+        };
+
+        document.getElementById("btn-buscador")?.addEventListener("click", buscarPeliculas);
+        buscador?.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                buscarPeliculas();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
